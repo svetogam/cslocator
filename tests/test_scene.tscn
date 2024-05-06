@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://dj3sv6fdqfef6"]
+
+[ext_resource type="Script" path="res://tests/agent_script.gd" id="1_4a030"]
+
+[node name="Top" type="Node"]
+
+[node name="Context" type="Node" parent="."]
+
+[node name="Service1" type="Node" parent="Context"]
+
+[node name="Service2" type="Node" parent="Context"]
+
+[node name="Agent" type="Node" parent="Context"]
+script = ExtResource("1_4a030")
+
+[node name="Subcontext" type="Node" parent="Context"]
+
+[node name="Service3" type="Node" parent="Context/Subcontext"]
+
+[node name="Agent" type="Node" parent="Context/Subcontext"]
+script = ExtResource("1_4a030")
