@@ -1,4 +1,14 @@
+class_name CSLocator_Sublocator
 extends RefCounted
+## This class gives an interface to the service locator on the
+## source [Node] it was generated on.
+##
+## Do not use this class directly. Instead, call its public methods
+## through [method Locator.with].
+## [br][br]
+## Services are stored in the source [Node]'s metadata,
+## via [method Object.set_meta].
+## Sublocators are automatically deleted when the source [Node] exits the tree.
 
 const _MAX_TREE_DEPTH: int = 10000
 const _META_PREFIX := "CSLocator_"
@@ -6,6 +16,7 @@ var _source: Node
 var _last_found_service_id: Variant = "uninitiated"
 
 
+# This should only be called by the main locator.
 func _init(p_source: Node) -> void:
 	_source = p_source
 	_source.tree_exiting.connect(_on_source_exiting_tree)
@@ -16,10 +27,15 @@ func _on_source_exiting_tree() -> void:
 	Locator._free_sublocator(_source, self)
 
 
-# Registers the service on the source node.
-# This can trigger connected callbacks.
-# The service can be any Object-derived class. Passing in null is
-# the same as calling unregister.
+## Registers [param service] on the source [Node] under the key
+## [param service_name].
+## [br][br]
+## This can change the service that is found when calling [method find],
+## and it can trigger callbacks connected by [method connect_service_found]
+## and [method connect_service_changed].
+## [br][br]
+## Passing in [code]null[/code] for the [param service] is identical to calling
+## [method unregister].
 func register(service_name: String, service: Object) -> void:
 	if service == null:
 		unregister(service_name)
@@ -30,9 +46,12 @@ func register(service_name: String, service: Object) -> void:
 	Locator._emit_service_signal(service_name)
 
 
-# Unregisters the service on the source node.
-# Does nothing if no service was previously registered.
-# This can trigger connect_service_changed callbacks.
+## Unregisters any previously registered service on the source [Node]
+## under the key [param service_name]. This does nothing if nothing
+## was previously registered.
+## [br][br]
+## This can change the service that is found when calling [method find],
+## and it can trigger callbacks connected by [method connect_service_changed].
 func unregister(service_name: String) -> void:
 	var meta_key := _get_service_meta_key(service_name)
 	var meta_dict = _source.get_meta(meta_key, {})
@@ -41,8 +60,9 @@ func unregister(service_name: String) -> void:
 	Locator._emit_service_signal(service_name)
 
 
-# Returns the first service registered under this name on the
-# nearest ancestor, or null if no service is found.
+## Returns the service registered under the key [param service_name]
+## on the nearest ancestor of the source [Node], including itself.
+## Or it returns [code]null[/code] if no service is found.
 func find(service_name: String) -> Object:
 	var meta_key := _get_service_meta_key(service_name)
 	var next_node: Node = _source # Begin with self
@@ -64,10 +84,18 @@ func find(service_name: String) -> Object:
 	return null
 
 
-# Calls the callback with the found service as a parameter.
-# It calls once the first time the service is found, which could
-# be immediate.
 # Only one callback can be set for each `CSLocator.with` line.
+## Calls [param callback] with the first service registered
+## under the key [param service_name] on any ancestor of the source [Node],
+## including itself.
+## It will call it only once, and will call it immediately if
+## the service is found immediately.
+## It never passes not-found or [code]null[/code] services to the
+## [param callback].
+## [br][br]
+## Multiple callbacks can be set for the same source [Node]
+## and [param service_name], but the order they are called in is
+## not determinate.
 func connect_service_found(service_name: String, callback: Callable) -> void:
 	var found_service = find(service_name)
 
@@ -81,9 +109,17 @@ func connect_service_found(service_name: String, callback: Callable) -> void:
 		Locator._disconnect_service_signal(service_name, connect_service_found)
 
 
-# Calls the callback immediately and every time the service changes,
-# including with null when no service is found.
-# Only one callback can be set for each `CSLocator.with` line.
+## Calls [param callback] with the same output as calling [method find]
+## on the source [Node].
+## That is, with the service registered under the key [param service_name]
+## on the nearest ancestor of the source [Node], including itself,
+## or with [code]null[/code] if no service is found.
+## It calls [param callback] immediately and every time the found service
+## changes.
+## [br][br]
+## Multiple callbacks can be set for the same source [Node]
+## and [param service_name], but the order they are called in is
+## not determinate.
 func connect_service_changed(service_name: String, callback: Callable) -> void:
 	var found_service = find(service_name)
 
@@ -97,8 +133,11 @@ func connect_service_changed(service_name: String, callback: Callable) -> void:
 		callback.call(found_service)
 
 
-# Disconnects all connected callbacks for the service on the source
-# node, for both connect_service_found and connect_service_changed.
+## Disconnects all callbacks previously connected on the source [Node]
+## under the key [param service_name]
+## via [method connect_service_found] and [method connect_service_changed].
+## [br][br]
+## Does nothing if nothing was previously connected.
 func disconnect_service(service_name: String) -> void:
 	var source_id := _source.get_instance_id()
 	for sublocator in Locator._get_sublocators(_source):

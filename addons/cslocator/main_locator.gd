@@ -1,15 +1,27 @@
 class_name Locator
+## All uses of the service locator should go through this static
+## class. Its only use is to call [method Locator.with].
+##
+## This is responsible for generating sublocators that
+## reference nodes in the scene tree, for sublocators to direct
+## signals to other sublocators, and to auto-delete sublocators that
+## are no longer used.
 
 const _SERVICE_SIGNAL_PREFIX := "service_signal:"
-const _Sublocator := preload("sublocator.gd")
-static var _sublocators_dict: Dictionary # {int: Array[_Sublocator], ...}
+static var _sublocators_dict: Dictionary # {int: Array[CSLocator_Sublocator], ...}
 static var _signaler := Object.new() # Hack to add signals in a static class
 
 
-# Pass a node for the place in the scene tree from which the
-# functions will be done.
-# The node must already be in the scene tree.
-static func with(source: Node) -> _Sublocator:
+## Generates a [CSLocator_Sublocator] pointing to the [param source] [Node]
+## passed into it.
+## [br][br]
+## The [param source] [Node] [b]must[/b] be in the scene tree, otherwise it
+## pushes an error and returns [code]null[/code].
+## [br][br]
+## It is not a supported use to keep references to sublocators such as by
+## [code]var sublocator = Locator.with(my_node)[/code]. This can lead to
+## unexpected behavior.
+static func with(source: Node) -> CSLocator_Sublocator:
 	# Give error if used incorrectly
 	if source == null or not source.is_inside_tree():
 		push_error("CSLocator error: Must pass a node in the scene tree.")
@@ -20,11 +32,11 @@ static func with(source: Node) -> _Sublocator:
 
 # Keep references to sublocators so they don't get garbage-collected,
 # and so they can be accessed together through the source node.
-static func _add_sublocator(source: Node) -> _Sublocator:
-	var sublocator := _Sublocator.new(source)
+static func _add_sublocator(source: Node) -> CSLocator_Sublocator:
+	var sublocator := CSLocator_Sublocator.new(source)
 	var source_id := source.get_instance_id()
 	if not _sublocators_dict.has(source_id):
-		var new_sublocator_array: Array[_Sublocator] = []
+		var new_sublocator_array: Array[CSLocator_Sublocator] = []
 		_sublocators_dict[source_id] = new_sublocator_array
 	_sublocators_dict[source_id].append(sublocator)
 	return sublocator
@@ -32,14 +44,14 @@ static func _add_sublocator(source: Node) -> _Sublocator:
 
 # Remove reference to sublocator, making it get garbage-collected.
 # Takes the source, though it could find it, for better performance.
-static func _free_sublocator(source: Node, sublocator: _Sublocator) -> void:
+static func _free_sublocator(source: Node, sublocator: CSLocator_Sublocator) -> void:
 	var source_id = source.get_instance_id()
 	_sublocators_dict[source_id].erase(sublocator)
 	if _sublocators_dict[source_id].is_empty():
 		_sublocators_dict.erase(source_id)
 
 
-static func _get_sublocators(source: Node) -> Array[_Sublocator]:
+static func _get_sublocators(source: Node) -> Array[CSLocator_Sublocator]:
 	var source_id := source.get_instance_id()
 	if _sublocators_dict.has(source_id):
 		return _sublocators_dict[source_id]
