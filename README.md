@@ -10,7 +10,7 @@ The purpose is to enhance decoupling and flexibility in mid-to-large games. This
 
 ## Funny Pitch
 
-Are singletons giving you a *headache*? Is injecting dependencies getting you *down*? The *CSLocator* could be the *answer* to your game programming architecture woes! You'll be *amazed* at how flexibly and *contextually* it locates your services! Don't delay! Try the *CSLocator* (formerly known as *"I can't believe it's not a Singleton!"*) today!
+Are singletons giving you a *headache*? Is injecting dependencies getting you *down*? The *Contextual Service Locator* could be the *answer* to your game programming architecture woes! You'll be *amazed* at how flexibly and *contextually* it locates your services! Don't delay! Try the *Contextual Service Locator* (formerly known as *"I can't believe it's not a Singleton!"*) today!
 
 
 ## Quickstart
