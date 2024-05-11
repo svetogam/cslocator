@@ -1,13 +1,14 @@
 class_name CSLocator_Sublocator
 extends RefCounted
-## This class gives an interface to the service locator on the
+## This class gives an interface to the Contextual Service Locator on the
 ## source [Node] it was generated on.
 ##
-## Do not use this class directly. Instead, call its public methods
-## through [method Locator.with].
+## [b]Never[/b] use this class directly. Only call its public methods
+## through [method CSLocator.with].
 ## [br][br]
 ## Services are stored in the source [Node]'s metadata,
 ## via [method Object.set_meta].
+## [br][br]
 ## Sublocators are automatically deleted when the source [Node] exits the tree.
 
 const _MAX_TREE_DEPTH: int = 10000
@@ -24,7 +25,7 @@ func _init(p_source: Node) -> void:
 
 # Remove all sublocators when the source node exits the tree.
 func _on_source_exiting_tree() -> void:
-	Locator._free_sublocator(_source, self)
+	CSLocator._free_sublocator(_source, self)
 
 
 ## Registers [param service] on the source [Node] under the key
@@ -43,7 +44,7 @@ func register(service_name: String, service: Object) -> void:
 
 	var meta_key := _get_service_meta_key(service_name)
 	_source.set_meta(meta_key, {"service": service})
-	Locator._emit_service_signal(service_name)
+	CSLocator._emit_service_signal(service_name)
 
 
 ## Unregisters any previously registered service on the source [Node]
@@ -57,7 +58,7 @@ func unregister(service_name: String) -> void:
 	var meta_dict = _source.get_meta(meta_key, {})
 	meta_dict.erase("service")
 	_source.set_meta(meta_key, meta_dict)
-	Locator._emit_service_signal(service_name)
+	CSLocator._emit_service_signal(service_name)
 
 
 ## Returns the service registered under the key [param service_name]
@@ -88,25 +89,23 @@ func find(service_name: String) -> Object:
 ## Calls [param callback] with the first service registered
 ## under the key [param service_name] on any ancestor of the source [Node],
 ## including itself.
-## It will call it only once, and will call it immediately if
+## It will call [param callback] only once, and will call it immediately if
 ## the service is found immediately.
-## It never passes not-found or [code]null[/code] services to the
-## [param callback].
+## It will never pass [code]null[/code] to the [param callback].
 ## [br][br]
 ## Multiple callbacks can be set for the same source [Node]
-## and [param service_name], but the order they are called in is
-## not determinate.
+## and [param service_name].
 func connect_service_found(service_name: String, callback: Callable) -> void:
 	var found_service = find(service_name)
 
 	if found_service == null:
 		# Try calling this again for next register/unregister
-		Locator._connect_service_signal(service_name,
+		CSLocator._connect_service_signal(service_name,
 				connect_service_found.bind(service_name, callback))
 	else:
 		# Call the callback only the first time the service is found
 		callback.call(found_service)
-		Locator._disconnect_service_signal(service_name, connect_service_found)
+		CSLocator._disconnect_service_signal(service_name, connect_service_found)
 
 
 ## Calls [param callback] with the same output as calling [method find]
@@ -118,13 +117,12 @@ func connect_service_found(service_name: String, callback: Callable) -> void:
 ## changes.
 ## [br][br]
 ## Multiple callbacks can be set for the same source [Node]
-## and [param service_name], but the order they are called in is
-## not determinate.
+## and [param service_name].
 func connect_service_changed(service_name: String, callback: Callable) -> void:
 	var found_service = find(service_name)
 
 	# Call this again for every next register/unregister
-	Locator._connect_service_signal(service_name,
+	CSLocator._connect_service_signal(service_name,
 			connect_service_changed.bind(service_name, callback))
 
 	# Call the callback with every changed value
@@ -140,10 +138,10 @@ func connect_service_changed(service_name: String, callback: Callable) -> void:
 ## Does nothing if nothing was previously connected.
 func disconnect_service(service_name: String) -> void:
 	var source_id := _source.get_instance_id()
-	for sublocator in Locator._get_sublocators(_source):
-		Locator._disconnect_service_signal(service_name,
+	for sublocator in CSLocator._get_sublocators(_source):
+		CSLocator._disconnect_service_signal(service_name,
 				sublocator.connect_service_changed)
-		Locator._disconnect_service_signal(service_name,
+		CSLocator._disconnect_service_signal(service_name,
 				sublocator.connect_service_found)
 
 

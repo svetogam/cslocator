@@ -10,7 +10,8 @@ config_version=5
 
 [application]
 
-config/name="Contextual Service Locator"
+config/name="CSLocator"
+config/description="The Contextual Service Locator (CSLocator) is the solution to all your service-locating needs!"
 run/main_scene="res://tests/test_scene.tscn"
 config/features=PackedStringArray("4.2", "Forward Plus")
 config/icon="res://icon.png"

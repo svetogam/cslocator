@@ -1,11 +1,12 @@
-class_name Locator
-## All uses of the service locator should go through this static
-## class. Its only use is to call [method Locator.with].
+class_name CSLocator
+## The main class for the Contextual Service Locator.
 ##
-## This is responsible for generating sublocators that
-## reference nodes in the scene tree, for sublocators to direct
-## signals to other sublocators, and to auto-delete sublocators that
-## are no longer used.
+## All uses of the CSLocator should go through [method CSLocator.with] and
+## select a method with the dot operator.
+## For example:
+## [code]CSLocator.with(self).register("my_service", my_service)[/code]
+## [br][br]
+## See [CSLocator_Sublocator] for the set of methods.
 
 const _SERVICE_SIGNAL_PREFIX := "service_signal:"
 static var _sublocators_dict: Dictionary # {int: Array[CSLocator_Sublocator], ...}
@@ -18,8 +19,8 @@ static var _signaler := Object.new() # Hack to add signals in a static class
 ## The [param source] [Node] [b]must[/b] be in the scene tree, otherwise it
 ## pushes an error and returns [code]null[/code].
 ## [br][br]
-## It is not a supported use to keep references to sublocators such as by
-## [code]var sublocator = Locator.with(my_node)[/code]. This can lead to
+## It is [b]not[/b] a supported use to keep references to sublocators, such as by
+## [code]var oops = CSLocator.with(self)[/code]. This can lead to
 ## unexpected behavior.
 static func with(source: Node) -> CSLocator_Sublocator:
 	# Give error if used incorrectly
