@@ -1,0 +1,29 @@
+[gd_scene load_steps=5 format=3 uid="uid://hcjdhwnu5eym"]
+
+[ext_resource type="Script" path="res://examples/bare_example/context.gd" id="1_k43ia"]
+[ext_resource type="Script" path="res://examples/bare_example/agent.gd" id="1_m2yvw"]
+[ext_resource type="Script" path="res://examples/bare_example/service_1.gd" id="2_typdw"]
+[ext_resource type="Script" path="res://examples/bare_example/service_2.gd" id="3_77vee"]
+
+[node name="Context" type="Node"]
+script = ExtResource("1_k43ia")
+
+[node name="Service1" type="Node" parent="."]
+script = ExtResource("2_typdw")
+
+[node name="Service2" type="Node" parent="."]
+script = ExtResource("3_77vee")
+
+[node name="Agent" type="Node" parent="."]
+script = ExtResource("1_m2yvw")
+
+[node name="Timer1" type="Timer" parent="Agent"]
+autostart = true
+
+[node name="Timer2" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
+autostart = true
+
+[connection signal="timeout" from="Agent/Timer1" to="Agent" method="_on_timer_1_timeout"]
+[connection signal="timeout" from="Timer2" to="." method="_on_timer_2_timeout"]
