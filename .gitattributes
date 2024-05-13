@@ -1,2 +1,10 @@
-# Normalize EOL for all files that Git considers text files.
+# Normalize line endings for all files that Git considers text files.
 * text=auto eol=lf
+
+# Include correct folders when downloading from the Asset Library.
+/**             export-ignore
+/addons         !export-ignore
+/addons/**      !export-ignore
+/addons/gut     export-ignore
+/examples       !export-ignore
+/examples/**    !export-ignore
