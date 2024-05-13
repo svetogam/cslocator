@@ -46,7 +46,7 @@ static func _add_sublocator(source: Node) -> CSLocator_Sublocator:
 # Remove reference to sublocator, making it get garbage-collected.
 # Takes the source, though it could find it, for better performance.
 static func _free_sublocator(source: Node, sublocator: CSLocator_Sublocator) -> void:
-	var source_id = source.get_instance_id()
+	var source_id := source.get_instance_id()
 	_sublocators_dict[source_id].erase(sublocator)
 	if _sublocators_dict[source_id].is_empty():
 		_sublocators_dict.erase(source_id)

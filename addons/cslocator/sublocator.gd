@@ -55,7 +55,7 @@ func register(service_name: String, service: Object) -> void:
 ## and it can trigger callbacks connected by [method connect_service_changed].
 func unregister(service_name: String) -> void:
 	var meta_key := CSLocator_Sublocator._get_service_meta_key(service_name)
-	var meta_dict = _source.get_meta(meta_key, {})
+	var meta_dict: Dictionary = _source.get_meta(meta_key, {})
 	meta_dict.erase("service")
 	_source.set_meta(meta_key, meta_dict)
 	CSLocator._emit_service_signal(service_name)
@@ -74,7 +74,7 @@ func find(service_name: String) -> Object:
 
 		# If node has CSLocator metadata
 		elif next_node.has_meta(meta_key):
-			var meta_dict = next_node.get_meta(meta_key)
+			var meta_dict: Dictionary = next_node.get_meta(meta_key)
 			if meta_dict.has("service"):
 				# Return first-found service metadata, which could be null
 				return meta_dict["service"]
@@ -96,7 +96,7 @@ func find(service_name: String) -> Object:
 ## Multiple callbacks can be set for the same source [Node]
 ## and [param service_name].
 func connect_service_found(service_name: String, callback: Callable) -> void:
-	var found_service = find(service_name)
+	var found_service := find(service_name)
 
 	if found_service == null:
 		# Try calling this again for next register/unregister
@@ -119,7 +119,7 @@ func connect_service_found(service_name: String, callback: Callable) -> void:
 ## Multiple callbacks can be set for the same source [Node]
 ## and [param service_name].
 func connect_service_changed(service_name: String, callback: Callable) -> void:
-	var found_service = find(service_name)
+	var found_service := find(service_name)
 
 	# Call this again for every next register/unregister
 	CSLocator._connect_service_signal(service_name,
@@ -147,7 +147,7 @@ func disconnect_service(service_name: String) -> void:
 # Returns true if service changed, and false otherwise.
 # Checks against the service this was last called with.
 func _check_and_update_current_service(found_service: Object) -> bool:
-	var changed = (
+	var changed: bool = (
 		(_last_found_service_id is String and _last_found_service_id == "uninitiated")
 		or (found_service != null and _last_found_service_id == null)
 		or (found_service == null and _last_found_service_id != null)
