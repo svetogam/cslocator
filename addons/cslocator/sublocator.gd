@@ -42,7 +42,7 @@ func register(service_name: String, service: Object) -> void:
 		unregister(service_name)
 		return
 
-	var meta_key := _get_service_meta_key(service_name)
+	var meta_key := CSLocator_Sublocator._get_service_meta_key(service_name)
 	_source.set_meta(meta_key, {"service": service})
 	CSLocator._emit_service_signal(service_name)
 
@@ -54,7 +54,7 @@ func register(service_name: String, service: Object) -> void:
 ## This can change the service that is found when calling [method find],
 ## and it can trigger callbacks connected by [method connect_service_changed].
 func unregister(service_name: String) -> void:
-	var meta_key := _get_service_meta_key(service_name)
+	var meta_key := CSLocator_Sublocator._get_service_meta_key(service_name)
 	var meta_dict = _source.get_meta(meta_key, {})
 	meta_dict.erase("service")
 	_source.set_meta(meta_key, meta_dict)
@@ -65,7 +65,7 @@ func unregister(service_name: String) -> void:
 ## on the nearest ancestor of the source [Node], including itself.
 ## Or it returns [code]null[/code] if no service is found.
 func find(service_name: String) -> Object:
-	var meta_key := _get_service_meta_key(service_name)
+	var meta_key := CSLocator_Sublocator._get_service_meta_key(service_name)
 	var next_node: Node = _source # Begin with self
 	for _i in range(_MAX_TREE_DEPTH): # Avoid infinite loop just in case
 		# Return null if reached beyond the root node
@@ -126,7 +126,7 @@ func connect_service_changed(service_name: String, callback: Callable) -> void:
 			connect_service_changed.bind(service_name, callback))
 
 	# Call the callback with every changed value
-	var service_changed := _check_and_update_current_service(service_name, found_service)
+	var service_changed := _check_and_update_current_service(found_service)
 	if service_changed:
 		callback.call(found_service)
 
@@ -137,7 +137,6 @@ func connect_service_changed(service_name: String, callback: Callable) -> void:
 ## [br][br]
 ## Does nothing if nothing was previously connected.
 func disconnect_service(service_name: String) -> void:
-	var source_id := _source.get_instance_id()
 	for sublocator in CSLocator._get_sublocators(_source):
 		CSLocator._disconnect_service_signal(service_name,
 				sublocator.connect_service_changed)
@@ -147,8 +146,7 @@ func disconnect_service(service_name: String) -> void:
 
 # Returns true if service changed, and false otherwise.
 # Checks against the service this was last called with.
-func _check_and_update_current_service(service_name: String, found_service: Object
-) -> bool:
+func _check_and_update_current_service(found_service: Object) -> bool:
 	var changed = (
 		(_last_found_service_id is String and _last_found_service_id == "uninitiated")
 		or (found_service != null and _last_found_service_id == null)
