@@ -1,9 +1,9 @@
 [gd_scene load_steps=5 format=3 uid="uid://hcjdhwnu5eym"]
 
-[ext_resource type="Script" path="res://examples/bare_example/context.gd" id="1_k43ia"]
-[ext_resource type="Script" path="res://examples/bare_example/agent.gd" id="1_m2yvw"]
-[ext_resource type="Script" path="res://examples/bare_example/service_1.gd" id="2_typdw"]
-[ext_resource type="Script" path="res://examples/bare_example/service_2.gd" id="3_77vee"]
+[ext_resource type="Script" path="res://examples/cslocator/bare_example/context.gd" id="1_k43ia"]
+[ext_resource type="Script" path="res://examples/cslocator/bare_example/agent.gd" id="1_m2yvw"]
+[ext_resource type="Script" path="res://examples/cslocator/bare_example/service_1.gd" id="2_typdw"]
+[ext_resource type="Script" path="res://examples/cslocator/bare_example/service_2.gd" id="3_77vee"]
 
 [node name="Context" type="Node"]
 script = ExtResource("1_k43ia")
