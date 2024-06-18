@@ -22,8 +22,8 @@ This is an addon for [Godot](https://godotengine.org/). Godot must be version 4.
 
 ### Install
 
-* Option 1: Get from the [Godot Asset Library](https://godotengine.org/asset-library/asset) through the Godot editor.
-* Option 2: Download it from the [Releases page](https://codeberg.org/svetogam/cslocator/releases) and put it in the `/addons/` folder in your project.
+* Option 1: Get it from the [Godot Asset Library](https://godotengine.org/asset-library/asset) through the Godot editor.
+* Option 2: Download it from the [Releases page](https://codeberg.org/svetogam/cslocator/releases) and put the `/cslocator/` folder into the `/addons/` folder in your project.
 
 
 ### Quickstart
