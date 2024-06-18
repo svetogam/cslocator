@@ -69,3 +69,5 @@ Any feedback about real use-cases is appreciated. How did using the CSLocator go
 ## Shameless Plug
 
 If you found value in the CSLocator then please visit/bookmark/contribute-to/fund/talk-up/otherwise-relate-to-in-a-favoring-way the FOSS game I'm developing, [Super Practica](https://codeberg.org/superpractica/superpractica). Thanks.
+
+The Contextual Service Locator works well together with the [Composite Reverter](https://codeberg.org/svetogam/creverter)! It's exactly the kind of "service" that it's good for locating!
