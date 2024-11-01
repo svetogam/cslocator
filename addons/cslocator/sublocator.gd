@@ -63,26 +63,27 @@ func unregister(service_name: String) -> void:
 
 ## Returns the service registered under the key [param service_name]
 ## on the nearest ancestor of the source [Node], including itself.
-## Or it returns [code]null[/code] if no service is found.
-func find(service_name: String) -> Object:
+## Or it returns [param default] if no service is found.
+func find(service_name: String, default: Object = null) -> Object:
 	var meta_key := CSLocator_Sublocator._get_service_meta_key(service_name)
-	var next_node: Node = _source # Begin with self
-	for _i in range(_MAX_TREE_DEPTH): # Avoid infinite loop just in case
-		# Return null if reached beyond the root node
+	# Start with the source
+	var next_node: Node = _source
+	# End eventually to ensure against an infinite loop
+	for _i in range(_MAX_TREE_DEPTH):
+		# End when beyond the root node
 		if next_node == null:
-			return null
-
+			break
 		# If node has CSLocator metadata
 		elif next_node.has_meta(meta_key):
 			var meta_dict: Dictionary = next_node.get_meta(meta_key)
 			if meta_dict.has("service"):
 				# Return first-found service metadata, which could be null
 				return meta_dict["service"]
-
 		# Try next ancestor
 		next_node = next_node.get_parent()
 
-	return null
+	# Return null or given default if nothing is found
+	return default
 
 
 # Only one callback can be set for each `CSLocator.with` line.
@@ -91,7 +92,7 @@ func find(service_name: String) -> Object:
 ## including itself.
 ## It will call [param callback] only once, and will call it immediately if
 ## the service is found immediately.
-## It will never pass [code]null[/code] to the [param callback].
+## It will never call [param callback] with [code]null[/code].
 ## [br][br]
 ## Multiple callbacks can be set for the same source [Node]
 ## and [param service_name].
@@ -112,18 +113,22 @@ func connect_service_found(service_name: String, callback: Callable) -> void:
 ## on the source [Node].
 ## That is, with the service registered under the key [param service_name]
 ## on the nearest ancestor of the source [Node], including itself,
-## or with [code]null[/code] if no service is found.
+## or with [param default] if no service is found.
 ## It calls [param callback] immediately and every time the found service
 ## changes.
+## It will never call [param callback] with [code]null[/code] if
+## [param default] is not [code]null[/code].
 ## [br][br]
 ## Multiple callbacks can be set for the same source [Node]
 ## and [param service_name].
-func connect_service_changed(service_name: String, callback: Callable) -> void:
-	var found_service := find(service_name)
+func connect_service_changed(service_name: String, callback: Callable,
+		default: Object = null
+) -> void:
+	var found_service := find(service_name, default)
 
 	# Call this again for every next register/unregister
 	CSLocator._connect_service_signal(service_name,
-			connect_service_changed.bind(service_name, callback))
+			connect_service_changed.bind(service_name, callback, default))
 
 	# Call the callback with every changed value
 	var service_changed := _check_and_update_current_service(found_service)
